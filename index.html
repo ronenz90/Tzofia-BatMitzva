@@ -10,24 +10,36 @@
       var name   = document.getElementById("fn").value.trim();
       var attend = document.querySelector('input[name="entry.2037233360"]:checked');
       var count  = document.getElementById("fc").value;
-      if (!name || !attend || !count) {
-        var el = document.getElementById("form-msg");
-        el.textContent = "אנא מלאו את כל השדות בטופס";
-        el.className = "error";
-        el.style.display = "block";
-        e.preventDefault();
-        return;
+
+      if (!name) {
+        showErr("אנא מלאו את השם המלא");
+        e.preventDefault(); return;
       }
+      if (!attend) {
+        showErr("אנא בחרו האם תגיעו");
+        e.preventDefault(); return;
+      }
+      if (attend.value !== 'לא' && !count) {
+        showErr("אנא מלאו את מספר המגיעים");
+        e.preventDefault(); return;
+      }
+
       var btn = document.getElementById("submit-btn");
       btn.disabled = true;
       btn.textContent = "...שולח";
-      // Show banner after 2s - form submits to hidden iframe so page stays
+      document.getElementById("form-msg").style.display = "none";
+
       setTimeout(function() {
         document.getElementById("thank-you-banner").classList.add("show");
         document.getElementById("rsvp-form").reset();
         btn.disabled = false;
         btn.textContent = "שלחו אישור הגעה ✦";
       }, 2000);
+    }
+    function showErr(msg) {
+      var el = document.getElementById("form-msg");
+      el.textContent = msg; el.className = "error"; el.style.display = "block";
+      el.scrollIntoView({behavior:"smooth", block:"center"});
     }
     function closeBanner() {
       document.getElementById("thank-you-banner").classList.remove("show");
@@ -177,7 +189,7 @@
 
       <div class="fg">
         <label for="fc">כמה אנשים יגיעו? <span class="r">*</span></label>
-        <input id="fc" name="entry.901215104" type="number" min="0" max="20" placeholder="מספר המגיעים" required />
+        <input id="fc" name="entry.901215104" type="number" min="0" max="20" placeholder="מספר המגיעים" />
       </div>
 
       <button type="submit" class="sbtn" id="submit-btn">שלחו אישור הגעה ✦</button>
