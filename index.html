@@ -6,32 +6,31 @@
   <title>אישורי הגעה – צופיה אסתר</title>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script>
-    var submitted = false;
-    function onIframeLoad() {
-      if (!submitted) return;
-      showMsg("תודה! אישור ההגעה נשלח בהצלחה 🌸", "success");
-      document.getElementById("rsvp-form").reset();
-      var btn = document.getElementById("submit-btn");
-      btn.disabled = false; btn.textContent = "שלחו אישור הגעה ✦";
-      submitted = false;
-    }
     function handleSubmit(e) {
-      var name   = document.getElementById("field-name").value.trim();
+      var name   = document.getElementById("fn").value.trim();
       var attend = document.querySelector('input[name="entry.2037233360"]:checked');
-      var count  = document.getElementById("field-count").value;
+      var count  = document.getElementById("fc").value;
       if (!name || !attend || !count) {
-        showMsg("אנא מלאו את כל השדות", "error");
-        e.preventDefault(); return;
+        var el = document.getElementById("form-msg");
+        el.textContent = "אנא מלאו את כל השדות";
+        el.className = "error";
+        el.style.display = "block";
+        e.preventDefault();
+        return;
       }
-      submitted = true;
       var btn = document.getElementById("submit-btn");
-      btn.disabled = true; btn.textContent = "...שולח";
-      document.getElementById("form-msg").style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "...שולח";
+      // Show banner after 2s - form submits to hidden iframe so page stays
+      setTimeout(function() {
+        document.getElementById("thank-you-banner").classList.add("show");
+        document.getElementById("rsvp-form").reset();
+        btn.disabled = false;
+        btn.textContent = "שלחו אישור הגעה ✦";
+      }, 2000);
     }
-    function showMsg(text, type) {
-      var el = document.getElementById("form-msg");
-      el.textContent = text; el.className = type; el.style.display = "block";
-      el.scrollIntoView({behavior:"smooth", block:"center"});
+    function closeBanner() {
+      document.getElementById("thank-you-banner").classList.remove("show");
     }
   </script>
   <style>
@@ -67,11 +66,66 @@
     #form-msg.success{background:#EDF7EC;color:#2E7D32;border:1.5px solid #A5D6A7;}
     #form-msg.error{background:#FDF2F4;color:var(--rose);border:1.5px solid var(--blush);}
     .footer{text-align:center;margin-top:40px;font-size:.82rem;color:var(--rose-light);}
+
+    /* Thank you banner */
+    #thank-you-banner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(123,47,70,0.55);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fadeIn .4s ease;
+    }
+    #thank-you-banner.show { display: flex; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .ty-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px 36px 40px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(122,47,70,0.25);
+      animation: popUp .45s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes popUp { from{opacity:0;transform:scale(.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .ty-flowers { font-size: 2.8rem; margin-bottom: 12px; }
+    .ty-card h3 {
+      font-family: "Frank Ruhl Libre", serif;
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: var(--rose);
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+    .ty-card p {
+      font-size: 1.05rem;
+      color: var(--rose-light);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .ty-close {
+      background: linear-gradient(135deg, var(--rose), var(--rose-mid));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 13px 36px;
+      font-family: "Frank Ruhl Libre", serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+    }
+    .ty-close:hover { opacity:.9; transform:translateY(-1px); }
     @media(max-width:500px){.form-body{padding:22px 18px 28px;}.rsvp-head{padding:20px 18px;}.rsvp-head h2{font-size:1.55rem;}}
   </style>
 </head>
 <body>
-<iframe name="hidden_iframe" style="display:none" onload="if(window.onIframeLoad)onIframeLoad()"></iframe>
+<iframe name="hidden_iframe" style="display:none"></iframe>
 <div class="page">
 
 <svg class="floral" viewBox="0 0 680 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -103,9 +157,9 @@
     <p>נשמח לדעת האם תצטרפו לשמחה שלנו</p>
   </div>
   <div class="form-body">
-    <form id="rsvp-form"
+    <form id="rsvp-form" target="hidden_iframe"
       action="https://docs.google.com/forms/d/e/1FAIpQLSe-Q921LIq9a16uXF1irSlGx43OaH1lK_hVos7RROrawAKe3Q/formResponse"
-      method="POST" target="hidden_iframe" onsubmit="handleSubmit(event)">
+      method="POST" onsubmit="handleSubmit(event)">
 
       <div class="fg">
         <label for="fn">שם מלא <span class="r">*</span></label>
@@ -142,6 +196,16 @@
 </svg>
 
 <div class="footer">בת המצווה של צופיה אסתר · כ"ב סיון תשפ"ו · עם ישראל חי</div>
+</div>
+
+<!-- Thank you banner -->
+<div id="thank-you-banner">
+  <div class="ty-card">
+    <div class="ty-flowers">🌸💐🌸</div>
+    <h3>תודה על אישור ההגעה!</h3>
+    <p>שמחים לדעת שתהיו איתנו<br/>בשמחה של צופיה אסתר ✦</p>
+    <button class="ty-close" onclick="closeBanner()">סגור</button>
+  </div>
 </div>
 </body>
 </html>
